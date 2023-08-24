@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shopping_list_app/model/categories.dart';
+import 'package:http/http.dart' as http;
 import 'package:shopping_list_app/model/grocery.dart';
 
 import '../data/categories.dart';
@@ -16,13 +19,34 @@ class _NewItemState extends State<NewItem> {
   var _enterdName = '';
   var _enterdQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables];
-  void _saveForm() {
+  bool isSaved = false;
+  void _saveForm() async {
     if (formKey.currentState!.validate()) //validate fields before save
     {
+      setState(() {
+        isSaved = true;
+      });
       formKey.currentState!.save();
+      final url = Uri.https('shoppinglist-cd4be-default-rtdb.firebaseio.com',
+          'shopping-list.json');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(
+          {
+            'name': _enterdName,
+            'quantity': _enterdQuantity,
+            'category': _selectedCategory!.title
+          },
+        ),
+      );
+      if (!context.mounted) {
+        return;
+      }
+      final resData = jsonDecode(response.body);
       Navigator.of(context).pop(
         GroceryItem(
-            id: DateTime.now().toString(),
+            id: resData['name'],
             name: _enterdName,
             quantity: _enterdQuantity,
             category: _selectedCategory!),
@@ -139,14 +163,22 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      formKey.currentState!.reset(); //reset fields
-                    },
+                    onPressed: isSaved
+                        ? null
+                        : () {
+                            formKey.currentState!.reset(); //reset fields
+                          },
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: _saveForm,
-                    child: const Text('Add item'),
+                    onPressed: isSaved ? null : _saveForm,
+                    child: isSaved
+                        ? const SizedBox(
+                            height: 15,
+                            width: 15,
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text('Add item'),
                   )
                 ],
               ),
