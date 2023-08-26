@@ -58,6 +58,11 @@ class _NewItemState extends State<NewItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.elliptical(15, 15),
+          ),
+        ),
         title: const Text('add item'),
       ),
       body: Padding(
@@ -97,6 +102,7 @@ class _NewItemState extends State<NewItem> {
                     child: TextFormField(
                       style: const TextStyle(color: Colors.white),
                       //Quantity
+                      initialValue: '1',
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(

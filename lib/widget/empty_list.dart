@@ -11,7 +11,7 @@ class EmptyList extends StatelessWidget {
         'Empty list',
         style: Theme.of(context)
             .textTheme
-            .headlineLarge!
+            .headlineMedium!
             .copyWith(color: Colors.white),
       ),
     );
